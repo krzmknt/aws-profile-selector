@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^14.0.0",
+    "commnader": "^0.0.1-security",
+    "fuse.js": "^7.1.0",
+    "ini": "^5.0.0",
+    "inquirer": "^12.6.3",
+    "string-width": "^7.2.0",
+    "strip-ansi": "^7.1.0"
+  }
+}
