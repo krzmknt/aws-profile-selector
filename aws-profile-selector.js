@@ -3,11 +3,14 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import inquirer from "inquirer";
+import autocomplete from "inquirer-autocomplete-prompt";
+import Fuse from "fuse.js";
 import chalk from "chalk";
 import stripAnsi from "strip-ansi";
 import stringWidth from "string-width";
 import { Command } from "commander";
 
+inquirer.registerPrompt("autocomplete", autocomplete); // ★追加
 const { Separator } = inquirer;
 
 /* ───── CLI ───── */
@@ -27,7 +30,6 @@ const lines = fs.readFileSync(cfg, "utf8").split(/\r?\n/);
 /* ───── プロファイル手パース ───── */
 const profiles = {};
 let cur = null;
-
 for (const ln of lines) {
   const sec = ln.match(/^\s*\[profile\s+([^\]]+)]/i);
   if (sec) {
@@ -40,7 +42,7 @@ for (const ln of lines) {
   if (kv) profiles[cur][kv[1].trim()] = kv[2].trim();
 }
 
-/* ───── 一覧化 ───── */
+/* ───── 一覧生成 ───── */
 const list = Object.entries(profiles)
   .map(([name, kv]) => ({
     name,
@@ -53,7 +55,7 @@ if (!list.length) {
   process.exit(1);
 }
 
-/* ───── 列幅計算（全角対応） ───── */
+/* ───── 表示用ヘルパ ───── */
 const colW = {
   name: Math.max(
     stringWidth("Profile"),
@@ -66,15 +68,14 @@ const colW = {
 };
 const pad = (s, w) => s + " ".repeat(w - stringWidth(stripAnsi(s)));
 
-/* ───── 罫線 ───── */
 const line = (l, m, r) =>
   chalk.gray(l + "─".repeat(colW.name + 2) + m + "─".repeat(colW.acc + 2) + r);
-const top = line(" ┌", "┬", "┐");
-const mid = line(" ├", "┼", "┤");
-const bottom = line(" └", "┴", "┘");
+const top = line("┌", "┬", "┐");
+const mid = line("├", "┼", "┤");
+const bottom = line("└", "┴", "┘");
 
 const header =
-  chalk.gray(" │ ") +
+  chalk.gray("│ ") +
   chalk.bold.white(pad("Profile", colW.name)) +
   chalk.gray(" │ ") +
   chalk.bold.white(pad("Account ID", colW.acc)) +
@@ -87,25 +88,38 @@ const row = (p) =>
   pad(p.accountId, colW.acc) +
   chalk.gray(" │");
 
+/* ───── Fuse.js セットアップ ───── */
+const fuse = new Fuse(list, {
+  keys: ["name", "accountId"],
+  threshold: 0.4,
+});
+
+/* ───── choice を動的生成 ───── */
+const buildChoices = (items) => [
+  new Separator(top),
+  new Separator(header),
+  new Separator(mid),
+  ...items.map((p) => ({
+    name: row(p), // 行自体は無色 → inquirer が反転ハイライト
+    value: p.name,
+    short: p.name,
+  })),
+  new Separator(bottom),
+];
+
 /* ───── prompt ───── */
 const { picked } = await inquirer.prompt([
   {
-    type: "list",
+    type: "autocomplete", // ★変更
     name: "picked",
     message: chalk.cyanBright("Select AWS profile:"),
     pageSize: 20,
     loop: false,
-    choices: [
-      new Separator(top),
-      new Separator(header),
-      new Separator(mid),
-      ...list.map((p) => ({
-        name: row(p), // 枠線だけ灰色・中身は無色 → inquirer の反転色が綺麗に映る
-        value: p.name,
-        short: p.name,
-      })),
-      new Separator(bottom),
-    ],
+    source: async (_, input) => {
+      if (!input) return buildChoices(list);
+      const result = fuse.search(input).map((r) => r.item);
+      return buildChoices(result);
+    },
   },
 ]);
 
