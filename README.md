@@ -1,6 +1,6 @@
 # aws-profile-selector
 
-**aws-profile-selector** is a fast, zero-dependency\* CLI that lets you browse every
+**aws-profile-selector** is a fast CLI that lets you browse every
 profile declared in `~/.aws/config`, fuzzy-filter them as you type, and export the
 selection to `AWS_PROFILE`—all in one key-stroke.
 
@@ -11,14 +11,13 @@ selection to `AWS_PROFILE`—all in one key-stroke.
 
 ## ✨ Features
 
-| Feature                | Details                                                                                             |
-| ---------------------- | --------------------------------------------------------------------------------------------------- |
-| **TUI picker**         | Arrow-keys to move / `ESC` to cancel / `Enter` to confirm                                           |
-| **Fuzzy search**       | Powered by [Fuse.js](https://fusejs.io)                                                             |
-| **Table layout**       | Fixed header + borders; column widths auto-fit to longest value                                     |
-| **Cross-shell helper** | `aws-profile-selector-init --apply` adds an `awsp` function to bash / zsh / fish / PowerShell / cmd |
-| **TypeScript + ESM**   | Modern codebase, strict typing, tree-shake friendly                                                 |
-| **MIT licensed**       | Free for commercial & personal use                                                                  |
+| Feature                | Details                                                                                                        |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **TUI picker**         | Arrow-keys to move / `ESC` to cancel / `Enter` to confirm                                                      |
+| **Fuzzy search**       | Powered by [Fuse.js](https://fusejs.io)                                                                        |
+| **Table layout**       | Fixed header + borders; column widths auto-fit to longest value                                                |
+| **Cross-shell helper** | `aws-profile-selector-init --shell <shell> --apply` adds an `awsps` function to bash / zsh / fish / PowerShell |
+| **MIT licensed**       | Free for commercial & personal use                                                                             |
 
 ---
 
@@ -31,58 +30,32 @@ npm i -g aws-profile-selector
 # Local project
 npm i --save-dev aws-profile-selector
 
+# Setup shell helper
+# <shell_name> ::= bash|zsh|fish|powershell
+aws-profile-selector-init --shell <shell_name> --apply
 ```
+
+Note: Edit your shell’s RC file to map Ctrl + T to the script by default.
+If you need to remove the binding or assign a different key, simply modify the RC file directly.
 
 ## Usage
 
-```bash
-# ad-hoc
-eval "$(aws-profile-selector)"         # sets AWS_PROFILE for current shell
-
-# persistent helper
-aws-profile-selector-init --apply      # injects awsp() into your rc file
-source ~/.bashrc                       # reload
-awsp                                   # launch picker any time
-
-```
-
-### Common flags
-
-| Flag             | Effect                                      |
-| ---------------- | ------------------------------------------- |
-| `--pure`         | Print only the profile name (no `export …`) |
-| `--pageSize <n>` | Rows per page (default 20)                  |
-| `--help`         | Full option reference                       |
-
-## How it works (modules)
-
-1. config-reader.ts – parse ~/.aws/config ⇒ JS object
-1. table-layout.ts – calculate column widths & borders
-1. choice-builder.ts – Fuse-powered fuzzy filter ⇒ inquirer choices
-1. selector-ui.ts – run @inquirer/search, handle ESC abort/arrow loop
-1. bin/selector.ts – CLI glue & final output
-1. bin/init.ts – add the convenient awsp shell function
-
-Everything lives in src/, compiled by tsc to dist/.
-
-## Development
+Ctrl+T (default) or run the command directly:
 
 ```bash
-git clone https://github.com/your-org/aws-profile-selector.git
-cd aws-profile-selector
-npm install
-
-npm run build      # -> dist/
-npm test           # Jest + ts-jest (ESM)
-npm link           # symlink globally, try `aws-profile-selector`
+awsps
 ```
 
-### Release checklist
+## ️How it works
 
-```bash
-npm version patch|minor|major   # bump & git-tag
-npm publish --access public     # prepublishOnly runs build
-```
+![architecture](docs/aws-profile-selector.svg)
+
+| #   | component                       | responsibility                                                                                                                                    |
+| --- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **`aws-profile-selector`**      | Parses `~/.aws/config`, shows an interactive list, lets you choose a profile.                                                                     |
+| 2   | **temp file**                   | The chosen profile name is written to a temp file (XDG-compatible location on Linux/macOS, `%TEMP%` on Windows).                                  |
+| 3   | **`awsp` shell wrapper**        | Runs in _bash_, _zsh_, _fish_, or _pwsh_.<br>Reads the temp file and exports `AWS_PROFILE` so any child process (`aws`, `cdk`, etc.) inherits it. |
+| –   | **`aws-profile-selector-init`** | Generates a tiny _RC-snippet_ that binds <kbd>Ctrl + T</kbd> to `awsp`.                                                                           |
 
 ## Contributing
 

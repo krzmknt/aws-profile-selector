@@ -15,7 +15,7 @@ interface CliOpt {
 }
 
 const cli = new Command()
-  .description('Install awsp helper into your shell rc')
+  .description('Install awsps helper into your shell rc')
   .option('-s, --shell <name>', 'bash|zsh|fish|powershell')
   .option('-a, --apply', 'write directly into rc file instead of printing snippet')
   .parse()
@@ -49,8 +49,9 @@ const targetShell: Shell = detectShell()
 
 const snippets: Record<Shell, string> = {
   bash: `
+
 # >>> aws-profile-selector start >>>
-awsp() {
+awsps() {
   tmp=$(mktemp)
   aws-profile-selector "$@" --out "$tmp" || { rm -f "$tmp"; return; }
   prof=$(<"$tmp")
@@ -59,13 +60,15 @@ awsp() {
   export AWS_PROFILE="$prof"
   echo "AWS_PROFILE=$AWS_PROFILE"
 }
-bind -x '"\\C-t":awsp'
+bind -x '"\\C-t":awsps'
 # <<< aws-profile-selector end <<<
+
 `,
 
   zsh: `
+
 # >>> aws-profile-selector start >>>
-awsp() {
+awsps() {
   tmp=$(mktemp)
   aws-profile-selector "$@" --out "$tmp" || { rm -f "$tmp"; return; }
   prof=$(<"$tmp"); rm -f "$tmp"
@@ -73,17 +76,15 @@ awsp() {
   export AWS_PROFILE="$prof"
   echo "AWS_PROFILE=$AWS_PROFILE"
 }
-awsp-widget() {
-  awsp;
-  zle reset-prompt
-}
-bindkey -s '^T' 'awsp\n'
+bindkey -s '^T' 'awsps\n'
 # <<< aws-profile-selector end <<<
+
 `,
 
   fish: `
+
 # >>> aws-profile-selector start >>>
-function awsp
+function awsps
     set -l tmp (mktemp)
     aws-profile-selector $argv --out $tmp
     or begin; rm -f $tmp; return; end
@@ -93,32 +94,33 @@ function awsp
     set -gx AWS_PROFILE $prof
     echo (set_color green)"AWS_PROFILE=$AWS_PROFILE"(set_color normal)
 end
-function bind_awsp
-    awsp
+function bind_awsps
+    awsps
     commandline -f repaint
 end
-bind \\ct bind_awsp
+bind \\ct bind_awsps
 # <<< aws-profile-selector end <<<
+
 `,
 
   powershell: `
+
 # >>> aws-profile-selector start >>>
-function awsp  {
+function awsps  {
   $file = New-TemporaryFile
   aws-profile-selector @Args --out $file.FullName
   if ($LASTEXITCODE -ne 0) { Remove-Item $file; return }
   $prof = Get-Content $file -Raw; Remove-Item $file
   if ($prof) { $env:AWS_PROFILE = $prof; Write-Host "AWS_PROFILE=$($env:AWS_PROFILE)" }
 }
-function Invoke-Awsp { awsp }
-Set-PSReadLineKeyHandler -Key Ctrl+t -ScriptBlock \${function:Invoke-Awsp}
 # <<< aws-profile-selector end <<<
+
 `,
 }
 
 const snippet = snippets[targetShell].trimStart()
 
-/** ----
+/**
  * 4. 適用 or 出力
  */
 if (!apply) {
@@ -146,13 +148,9 @@ try {
       break
   }
 
-  /* rc ファイルが無ければ空で作成 */
   if (!existsSync(rcPath)) writeFileSync(rcPath, '', { flag: 'a' })
-
   appendFileSync(rcPath, `\n${snippet}\n`)
   console.log(chalk.green(`✓ Added awsp helper to ${rcPath}`))
-
-  // 削除したい場合の操作を示す
   console.log(chalk.yellow(`To remove, delete the snippet from ${rcPath}:\n`))
   console.log(chalk.yellow(snippet))
   console.log(

@@ -1,0 +1,83 @@
+<mxfile host="65bd71144e">
+    <diagram name="Page-1" id="boES9S6FxWCLbQXVPEJ5">
+        <mxGraphModel dx="899" dy="1514" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-1" value="&lt;font style=&quot;color: rgb(136, 136, 136);&quot;&gt;`awsps` for multiple shells&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;color: rgb(136, 136, 136);&quot;&gt;(bash, zsh, fish, pwsh)&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;arcSize=6;verticalAlign=top;strokeColor=#888888;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="200" width="380" height="230" as="geometry"/>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-2" value="&lt;div&gt;&lt;span style=&quot;&quot;&gt;&lt;font style=&quot;color: rgb(136, 136, 136);&quot;&gt;$AWS_PROFILE&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;strokeColor=#888888;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="530" y="370" width="110" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-3" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#888888;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=default;endArrow=block;endFill=1;" parent="1" source="HvSPqv_7uj0I8Wizk3V_-5" target="HvSPqv_7uj0I8Wizk3V_-2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-4" value="Ref" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;" parent="HvSPqv_7uj0I8Wizk3V_-3" connectable="0" vertex="1">
+                    <mxGeometry x="-0.0599" relative="1" as="geometry">
+                        <mxPoint x="16" y="-9" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-5" value="`aws`,`cdk`, etc..." style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;strokeColor=#888888;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="710" y="370" width="110" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-6" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#888888;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=default;endArrow=block;endFill=1;curved=0;" parent="1" source="HvSPqv_7uj0I8Wizk3V_-10" target="HvSPqv_7uj0I8Wizk3V_-15" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="405" y="330" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="405" y="320"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-7" value="2. Save the selected profile name" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;" parent="HvSPqv_7uj0I8Wizk3V_-6" connectable="0" vertex="1">
+                    <mxGeometry x="-0.1047" relative="1" as="geometry">
+                        <mxPoint x="-21" y="-13" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-8" style="edgeStyle=none;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#888888;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=default;endArrow=block;endFill=1;" parent="1" source="HvSPqv_7uj0I8Wizk3V_-10" target="HvSPqv_7uj0I8Wizk3V_-14" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-9" value="1. Parse" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;" parent="HvSPqv_7uj0I8Wizk3V_-8" connectable="0" vertex="1">
+                    <mxGeometry x="-0.3909" relative="1" as="geometry">
+                        <mxPoint x="7" y="-10" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-10" value="&lt;font style=&quot;color: rgb(136, 136, 136);&quot;&gt;`aws-profile-selector`&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;color: rgb(136, 136, 136);&quot;&gt;(Node.js)&lt;/font&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;strokeColor=#888888;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="329" y="250" width="127" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-11" style="edgeStyle=none;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#888888;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=default;endArrow=block;endFill=1;" parent="1" source="HvSPqv_7uj0I8Wizk3V_-13" target="HvSPqv_7uj0I8Wizk3V_-1" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-12" value="Define the handler script for your shell." style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;" parent="HvSPqv_7uj0I8Wizk3V_-11" connectable="0" vertex="1">
+                    <mxGeometry x="0.0539" y="1" relative="1" as="geometry">
+                        <mxPoint x="-1" y="-5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-13" value="&lt;div&gt;&lt;span style=&quot;&quot;&gt;&lt;font style=&quot;color: rgb(136, 136, 136);&quot;&gt;`aws-profile-selector-init --shell &amp;lt;shell_name&amp;gt; --apply`&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;&quot;&gt;&lt;font style=&quot;color: rgb(136, 136, 136);&quot;&gt;(Node.js)&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;arcSize=17;verticalAlign=middle;strokeColor=#888888;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="120" width="380" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-14" value="~/.aws/config" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;size=14;strokeColor=#888888;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="530" y="250" width="110" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-15" value="tmp" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;size=14;strokeColor=#888888;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="530" y="310" width="110" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-16" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#888888;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=default;endArrow=block;endFill=1;curved=0;" parent="1" source="HvSPqv_7uj0I8Wizk3V_-15" target="HvSPqv_7uj0I8Wizk3V_-2" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="390" y="340" as="sourcePoint"/>
+                        <mxPoint x="515" y="370" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="500" y="340"/>
+                            <mxPoint x="500" y="390"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="HvSPqv_7uj0I8Wizk3V_-17" value="3. Set the environment variable" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=#888888;labelBackgroundColor=none;" parent="HvSPqv_7uj0I8Wizk3V_-16" connectable="0" vertex="1">
+                    <mxGeometry x="-0.1047" relative="1" as="geometry">
+                        <mxPoint x="-81" y="4" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
