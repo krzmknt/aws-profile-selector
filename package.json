@@ -1,13 +1,44 @@
 {
+  "name": "aws-profile-selector",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Interactive AWS profile picker",
+  "type": "module",
+  "bin": {
+    "aws-profile-selector": "./dist/bin/selector.js",
+    "aws-profile-selector-init": "./dist/bin/init.js"
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "lint": "eslint \"{src,bin,tests}/**/*.ts\" --max-warnings 0",
+    "test": "jest --coverage --coverageDirectory=./coverage --collectCoverageFrom=./src/**/*.ts",
+    "build": "tsc",
+    "dev": "ts-node ./bin/selector.ts --pure",
+    "prepublishOnly": "npm run build"
+  },
   "dependencies": {
-    "chalk": "^5.4.1",
-    "commander": "^14.0.0",
-    "commnader": "^0.0.1-security",
-    "fuse.js": "^7.1.0",
-    "ini": "^5.0.0",
-    "inquirer": "^9.3.7",
-    "inquirer-autocomplete-prompt": "^3.0.1",
-    "string-width": "^7.2.0",
-    "strip-ansi": "^7.1.0"
+    "@inquirer/search": "^1.0.0",
+    "chalk": "^5",
+    "commander": "^12",
+    "fuse.js": "^7",
+    "string-width": "^5",
+    "strip-ansi": "^7"
+  },
+  "devDependencies": {
+    "@inquirer/prompts": "^7.5.3",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
+    "@typescript-eslint/parser": "^8.34.1",
+    "esbuild": "^0.25.4",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
+    "jest": "^30.0.2",
+    "prettier": "^3.2.4",
+    "ts-jest": "^29.4.0",
+    "ts-node": "^10",
+    "typescript": "^5"
   }
 }
