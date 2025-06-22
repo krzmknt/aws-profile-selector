@@ -1,6 +1,6 @@
 {
   "name": "aws-profile-selector",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Interactive AWS profile picker",
   "type": "module",
@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@inquirer/search": "^1.0.0",
+    "@inquirer/prompts": "^7.5.3",
     "chalk": "^5",
     "commander": "^12",
     "fuse.js": "^7",
@@ -27,7 +28,6 @@
     "strip-ansi": "^7"
   },
   "devDependencies": {
-    "@inquirer/prompts": "^7.5.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@typescript-eslint/eslint-plugin": "^8.34.1",

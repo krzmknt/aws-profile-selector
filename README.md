@@ -21,6 +21,8 @@ selection to `AWS_PROFILE`—all in one key-stroke.
 
 ---
 
+![demo](./docs/aws-profile-selector.demo.gif)
+
 ## 🚀 Installation
 
 ```bash
