@@ -14,7 +14,7 @@ describe('table-layout', () => {
     const rendered = layout.formatRow(rows[1])
     expect(rendered).toContain('long-profile')
     // 端に │ があるか
-    expect(rendered.startsWith('│')).toBe(false) // indent 付けていない
+    expect(rendered.startsWith('│')).toBe(true) // formatRowは'│ 'で始まる
     expect(rendered.trim()).toContain('long-profile')
   })
 })

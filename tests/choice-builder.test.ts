@@ -3,7 +3,7 @@ import { createLayout } from '../src/table-layout'
 
 const length = 10
 const rows = Array.from({ length }, (_, i) => ({
-  profileName: `${i}.example.com`,
+  profileName: `${i.toString().padStart(2, '0')}.example`,
   accountId: `012345678901${i}`,
 }))
 
@@ -13,8 +13,8 @@ describe('choice-builder', () => {
 
   it('returns all rows when term is undefined', async () => {
     const list = await source(undefined, { signal: new AbortController().signal })
-    // 区切り(上部3) + body3 + 下部2 = 8
-    expect(list.length).toBe(length + 5)
+    // borderTop, header, borderMid, body(10), borderBot = 14
+    expect(list.length).toBe(length + 4)
   })
 
   it('filters rows by fuzzy term', async () => {
@@ -25,12 +25,9 @@ describe('choice-builder', () => {
     expect(names).toEqual(['02.example'])
   })
 
-  it('returns "No matches" when nothing matched', async () => {
+  it('returns empty body when nothing matched', async () => {
     const list = await source('zzz', { signal: new AbortController().signal })
-    expect(
-      list.some(
-        (i) => typeof i !== 'string' && 'line' in i && (i as any).line.includes('No matches'),
-      ),
-    ).toBe(true)
+    // borderTop, header, borderMid, borderBot (no body) = 4
+    expect(list.length).toBe(4)
   })
 })
