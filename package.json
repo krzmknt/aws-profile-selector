@@ -1,6 +1,10 @@
 {
   "name": "aws-profile-selector",
   "version": "1.0.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krzmknt/aws-profile-selector.git"
+  },
   "license": "MIT",
   "description": "Interactive AWS profile picker",
   "type": "module",
