@@ -4,6 +4,7 @@ const length = 10
 const rows = Array.from({ length }, (_, i) => ({
   profileName: `${i.toString().padStart(2, '0')}.example`,
   accountId: `012345678901${i}`,
+  hasValidSession: i % 2 === 0,
 }))
 
 describe('choice-builder', () => {

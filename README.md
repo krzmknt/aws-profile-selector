@@ -59,17 +59,6 @@ awsps
 | 3   | **`awsp` shell wrapper**        | Runs in _bash_, _zsh_, _fish_, or _pwsh_.<br>Reads the temp file and exports `AWS_PROFILE` so any child process (`aws`, `cdk`, etc.) inherits it. |
 | –   | **`aws-profile-selector-init`** | Generates a tiny _RC-snippet_ that binds <kbd>Ctrl + T</kbd> to `awsp`.                                                                           |
 
-## Contributing
-
-PRs & issues are welcome!
-Please:
-
-- keep one feature/fix per PR
-- run `npm run lint` before committing
-- include Jest tests for new logic
-- keep table width ≤ 80 cols
-
 ## License
 
 Released under the MIT License – see [LICENSE](./LICENSE) for full text.
-Made with ☕ and ❤️ in Tokyo.

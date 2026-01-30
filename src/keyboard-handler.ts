@@ -16,6 +16,11 @@ export type KeyType =
   | { type: 'escape' }
   | { type: 'backspace' }
   | { type: 'char'; char: string }
+  | { type: 'ctrl-a' }  // Move to beginning of line
+  | { type: 'ctrl-e' }  // Move to end of line
+  | { type: 'ctrl-k' }  // Kill text from cursor to end of line
+  | { type: 'left' }    // Move cursor left
+  | { type: 'right' }   // Move cursor right
 
 export type KeyHandler = (key: KeyType) => void
 
@@ -43,6 +48,10 @@ export function createKeyboardHandler(): KeyboardHandler {
         currentHandler({ type: 'up' })
       } else if (key.name === 'down') {
         currentHandler({ type: 'down' })
+      } else if (key.name === 'left') {
+        currentHandler({ type: 'left' })
+      } else if (key.name === 'right') {
+        currentHandler({ type: 'right' })
       } else if (key.name === 'return') {
         currentHandler({ type: 'enter' })
       } else if (key.name === 'escape') {
@@ -52,6 +61,12 @@ export function createKeyboardHandler(): KeyboardHandler {
       } else if (key.ctrl && key.name === 'c') {
         // Ctrl+C: exit immediately
         process.exit(130)
+      } else if (key.ctrl && key.name === 'a') {
+        currentHandler({ type: 'ctrl-a' })
+      } else if (key.ctrl && key.name === 'e') {
+        currentHandler({ type: 'ctrl-e' })
+      } else if (key.ctrl && key.name === 'k') {
+        currentHandler({ type: 'ctrl-k' })
       } else if (key.sequence && !key.ctrl && !key.meta) {
         // Regular character input
         const char = key.sequence

@@ -22,6 +22,7 @@ const cursorToColumn1 = `${ESC}1G`
 
 export interface RenderState {
   filterText: string
+  cursorPosition: number
   rows: string[]
   selectedIndex: number
   scrollOffset: number
@@ -43,7 +44,7 @@ export function createTerminalRenderer(): TerminalRenderer {
   }
 
   const render = (state: RenderState): void => {
-    const { filterText, rows, scrollOffset, pageSize } = state
+    const { filterText, cursorPosition, rows, scrollOffset, pageSize } = state
 
     // Move cursor to the beginning of previously rendered content
     if (lastRenderedLineCount > 0) {
@@ -52,9 +53,13 @@ export function createTerminalRenderer(): TerminalRenderer {
 
     const lines: string[] = []
 
-    // Filter prompt line (indigo/blue-purple color)
-    const cursor = ansi.gray('█')
-    lines.push(`${ansi.hex('#6366F1')('Filter:')} ${filterText}${cursor}`)
+    // Filter prompt line with cursor at correct position (indigo/blue-purple color)
+    // Use inverse video for cursor character to avoid shifting text
+    const beforeCursor = filterText.slice(0, cursorPosition)
+    const cursorChar = filterText[cursorPosition] ?? ' '
+    const afterCursor = filterText.slice(cursorPosition + 1)
+    const inverseCursor = `\x1b[7m${cursorChar}\x1b[0m` // inverse video
+    lines.push(`${ansi.hex('#6366F1')('Filter:')} ${beforeCursor}${inverseCursor}${afterCursor}`)
 
     // Calculate visible window
     const visibleRows = rows.slice(scrollOffset, scrollOffset + pageSize)

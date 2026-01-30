@@ -4,7 +4,7 @@
  * ## Responsibility
  * - Main UI controller for profile selection
  * - Integrates KeyboardHandler + TerminalRenderer
- * - Manages UIState (filterText, selectedIndex, scrollOffset)
+ * - Manages UIState (filterText, cursorPosition, selectedIndex, scrollOffset)
  * - Handles scrolling and selection logic
  */
 
@@ -17,17 +17,19 @@ export interface SelectorOptions {
   searcher: FuzzySearcher
   layout: Layout
   pageSize: number
+  currentProfile?: string
 }
 
 interface UIState {
   filterText: string
+  cursorPosition: number
   selectedIndex: number
   scrollOffset: number
   filteredProfiles: Profile[]
 }
 
 export async function runSelector(opts: SelectorOptions): Promise<string | undefined> {
-  const { searcher, layout, pageSize } = opts
+  const { searcher, layout, pageSize, currentProfile } = opts
 
   return new Promise((resolve) => {
     const keyboard = createKeyboardHandler()
@@ -35,6 +37,7 @@ export async function runSelector(opts: SelectorOptions): Promise<string | undef
 
     const state: UIState = {
       filterText: '',
+      cursorPosition: 0,
       selectedIndex: 0,
       scrollOffset: 0,
       filteredProfiles: searcher.getAll(),
@@ -50,10 +53,11 @@ export async function runSelector(opts: SelectorOptions): Promise<string | undef
 
       for (let i = 0; i < filteredProfiles.length; i++) {
         const profile = filteredProfiles[i]
+        const isCurrent = profile.profileName === currentProfile
         if (i === selectedIndex) {
-          rows.push(layout.formatSelectedRow(profile))
+          rows.push(layout.formatSelectedRow(profile, isCurrent))
         } else {
-          rows.push(layout.formatUnselectedRow(profile))
+          rows.push(layout.formatUnselectedRow(profile, isCurrent))
         }
       }
 
@@ -81,6 +85,7 @@ export async function runSelector(opts: SelectorOptions): Promise<string | undef
       const rows = buildTableRows()
       renderer.render({
         filterText: state.filterText,
+        cursorPosition: state.cursorPosition,
         rows,
         selectedIndex: state.selectedIndex + 3, // offset for header rows
         scrollOffset: state.scrollOffset,
@@ -118,6 +123,18 @@ export async function runSelector(opts: SelectorOptions): Promise<string | undef
           }
           break
 
+        case 'left':
+          if (state.cursorPosition > 0) {
+            state.cursorPosition--
+          }
+          break
+
+        case 'right':
+          if (state.cursorPosition < state.filterText.length) {
+            state.cursorPosition++
+          }
+          break
+
         case 'enter':
           if (state.filteredProfiles.length > 0) {
             const selected = state.filteredProfiles[state.selectedIndex]
@@ -133,15 +150,40 @@ export async function runSelector(opts: SelectorOptions): Promise<string | undef
           return
 
         case 'backspace':
-          if (state.filterText.length > 0) {
-            state.filterText = state.filterText.slice(0, -1)
+          if (state.cursorPosition > 0) {
+            state.filterText =
+              state.filterText.slice(0, state.cursorPosition - 1) +
+              state.filterText.slice(state.cursorPosition)
+            state.cursorPosition--
             updateFilter()
           }
           break
 
         case 'char':
-          state.filterText += key.char
+          state.filterText =
+            state.filterText.slice(0, state.cursorPosition) +
+            key.char +
+            state.filterText.slice(state.cursorPosition)
+          state.cursorPosition++
           updateFilter()
+          break
+
+        case 'ctrl-a':
+          // Move cursor to beginning of line
+          state.cursorPosition = 0
+          break
+
+        case 'ctrl-e':
+          // Move cursor to end of line
+          state.cursorPosition = state.filterText.length
+          break
+
+        case 'ctrl-k':
+          // Kill text from cursor to end of line
+          if (state.cursorPosition < state.filterText.length) {
+            state.filterText = state.filterText.slice(0, state.cursorPosition)
+            updateFilter()
+          }
           break
       }
 

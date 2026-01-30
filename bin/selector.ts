@@ -20,6 +20,7 @@ import { createFuzzySearcher } from '../src/choice-builder.js'
 import { createLayout, type Profile } from '../src/table-layout.js'
 import { readAwsConfig } from '../src/config-reader.js'
 import { runSelector } from '../src/selector-ui.js'
+import { isSessionValid } from '../src/session-checker.js'
 
 /** Simple CLI argument parser */
 function parseArgs(): { pure: boolean; out?: string } {
@@ -46,6 +47,7 @@ try {
     .map(([profileName, kv]) => ({
       profileName,
       accountId: kv.sso_account_id ?? 'N/A',
+      hasValidSession: isSessionValid(kv.sso_session),
     }))
     .sort((a, b) => a.profileName.localeCompare(b.profileName))
 
@@ -56,8 +58,9 @@ try {
 
   const layout = createLayout(profiles)
   const searcher = createFuzzySearcher(profiles)
+  const currentProfile = process.env.AWS_PROFILE
 
-  const picked = await runSelector({ searcher, layout, pageSize: 20 })
+  const picked = await runSelector({ searcher, layout, pageSize: 20, currentProfile })
 
   if (picked === undefined) {
     console.log('Cancelled.')
