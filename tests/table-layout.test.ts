@@ -11,10 +11,14 @@ describe('table-layout', () => {
     expect(layout.borderTop).toMatch(/┐$/)
     expect(layout.header).toContain('Profile')
 
-    const rendered = layout.formatRow(rows[1])
-    expect(rendered).toContain('long-profile')
-    // 端に │ があるか
-    expect(rendered.startsWith('│')).toBe(true) // formatRowは'│ 'で始まる
-    expect(rendered.trim()).toContain('long-profile')
+    // Test unselected row
+    const unselected = layout.formatUnselectedRow(rows[1])
+    expect(unselected).toContain('long-profile')
+    expect(unselected.trim()).toContain('long-profile')
+
+    // Test selected row
+    const selected = layout.formatSelectedRow(rows[1])
+    expect(selected).toContain('long-profile')
+    expect(selected).toContain('┃') // thick border for selected
   })
 })

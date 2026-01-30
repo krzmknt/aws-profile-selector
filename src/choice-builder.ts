@@ -4,57 +4,31 @@
  *
  * ## Responsibility
  * - Execute fuzzy search (Fuse.js) over profile list.
- * - Convert search results into **SearchChoice[]** for `@inquirer/search`.
- * - Insert real `Separator` rows (header / borders / "No matches").
+ * - Return filtered profile list based on search term.
  *
  * Pure transformation layer; no I/O, no UI side-effects.
  */
 
 import Fuse from 'fuse.js'
-import { Separator } from '@inquirer/prompts'
-import type { Layout, Profile } from './table-layout.js'
-import type { SearchChoice, ChoiceObject } from './types.js'
+import type { Profile } from './table-layout.js'
 
-export function createChoiceBuilder(rows: Profile[], layout: Layout) {
+export interface FuzzySearcher {
+  search: (term: string) => Profile[]
+  getAll: () => Profile[]
+}
+
+export function createFuzzySearcher(rows: Profile[]): FuzzySearcher {
   const fuse = new Fuse(rows, {
     keys: ['profileName', 'accountId'],
     threshold: 0.4,
   })
 
-  /* 追加: 先頭に 2 スペースを足すユーティリティ */
-  const withIndent = (text: string): string => `${text}`
-
-  /* 本物の Separator を返すヘルパ (indent 付き) */
-  const separator = (text: string): SearchChoice =>
-    new Separator(withIndent(text)) as unknown as SearchChoice
-
-  /* No-matches 用・row→choice 変換も indent 付き */
-  const toChoices = (matched: Profile[]): readonly SearchChoice[] => {
-    const body: SearchChoice[] = matched.map(
-      (p): ChoiceObject => ({
-        name: withIndent(layout.formatRow(p)),
-        value: p.profileName,
-        short: p.profileName,
-      }),
-    )
-
-    return [
-      separator(layout.borderTop),
-      separator(layout.header),
-      separator(layout.borderMid),
-      ...body,
-      separator(layout.borderBot),
-    ] as const
+  const search = (term: string): Profile[] => {
+    if (!term) return rows
+    return fuse.search(term).map((r) => r.item)
   }
 
-  async function source(
-    term: string | undefined,
-    { signal }: { signal: AbortSignal },
-  ): Promise<readonly SearchChoice[]> {
-    if (signal.aborted) return []
-    const matched = term ? fuse.search(term).map((r) => r.item) : rows
-    return toChoices(matched)
-  }
+  const getAll = (): Profile[] => rows
 
-  return { source }
+  return { search, getAll }
 }

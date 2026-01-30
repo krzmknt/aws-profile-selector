@@ -5,7 +5,7 @@
  * ## Responsibility
  * - Calculate column widths from profile list.
  * - Generate header / border strings.
- * - Provide `formatRow()` to render **one row** with proper padding.
+ * - Provide `formatSelectedRow()` and `formatUnselectedRow()` for table rendering.
  *
  * Does **not** read files or interact with inquirer.
  */
@@ -42,7 +42,8 @@ function border(
  * 列幅・罫線などレイアウト情報一式
  */
 export interface Layout {
-  formatRow: (row: Profile) => string
+  formatSelectedRow: (row: Profile) => string
+  formatUnselectedRow: (row: Profile) => string
   header: string
   borderTop: string
   borderMid: string
@@ -66,13 +67,37 @@ export function createLayout(list: Profile[]): Layout {
   )
 
   const header =
-    chalk.gray(' │ ') +
+    chalk.gray('│ ') +
     chalk.bold.white(pad(headerTitleName, widthName)) +
     chalk.gray(' │ ') +
     chalk.bold.white(pad(headerTitleAccountId, widthAccountId)) +
     chalk.gray(' │')
 
-  const formatRow = (profileRow: Profile): string =>
+  /** 選択行: 太い左枠線 ┃ + 背景色ハイライト (薄いグレー背景) */
+  const formatSelectedRow = (profileRow: Profile): string => {
+    // ANSI codes: 100=gray bg, 97=bright white fg, 90=gray fg, 0=reset
+    const bgOn = '\x1b[100m'
+    const fgWhite = '\x1b[97m'
+    const fgGray = '\x1b[90m'
+    const reset = '\x1b[0m'
+
+    const content =
+      bgOn +
+      fgWhite +
+      ' ' +
+      pad(profileRow.profileName, widthName) +
+      fgGray +
+      ' │ ' +
+      fgWhite +
+      pad(profileRow.accountId, widthAccountId) +
+      ' ' +
+      reset
+
+    return chalk.bold.hex('#6366F1')('▐') + content + chalk.gray('│')
+  }
+
+  /** 非選択行: 通常の左枠線 │ */
+  const formatUnselectedRow = (profileRow: Profile): string =>
     chalk.gray('│ ') +
     pad(profileRow.profileName, widthName) +
     chalk.gray(' │ ') +
@@ -80,10 +105,11 @@ export function createLayout(list: Profile[]): Layout {
     chalk.gray(' │')
 
   return {
-    formatRow,
+    formatSelectedRow,
+    formatUnselectedRow,
     header,
-    borderTop: border('\n  ┌', '┬', '┐', widthName, widthAccountId),
-    borderMid: border(' ├', '┼', '┤', widthName, widthAccountId),
-    borderBot: border(' └', '┴', '┘', widthName, widthAccountId),
+    borderTop: border('┌', '┬', '┐', widthName, widthAccountId),
+    borderMid: border('├', '┼', '┤', widthName, widthAccountId),
+    borderBot: border('└', '┴', '┘', widthName, widthAccountId),
   }
 }

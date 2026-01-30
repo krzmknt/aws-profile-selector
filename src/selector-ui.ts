@@ -1,59 +1,158 @@
 /**
  * @packageDocumentation
- * @internal
  *
  * ## Responsibility
- * - Wrap `@inquirer/search` prompt with common UX:
- *   - ↑/↓ navigation, ESC abort, pageSize handling.
- * - Expose `runSelector()` that returns the chosen profile **or** `undefined`
- *   when the user cancels.
- *
- * UI only; delegates choice generation to `choice-builder`.
+ * - Main UI controller for profile selection
+ * - Integrates KeyboardHandler + TerminalRenderer
+ * - Manages UIState (filterText, selectedIndex, scrollOffset)
+ * - Handles scrolling and selection logic
  */
 
-import readline from 'node:readline'
-import chalk from 'chalk'
-import searchPrompt from '@inquirer/search'
-import type { SearchChoice } from './types.js'
+import { createKeyboardHandler, type KeyType } from './keyboard-handler.js'
+import { createTerminalRenderer } from './terminal-renderer.js'
+import { type FuzzySearcher } from './choice-builder.js'
+import { type Layout, type Profile } from './table-layout.js'
 
 export interface SelectorOptions {
+  searcher: FuzzySearcher
+  layout: Layout
   pageSize: number
-  choiceSource: (
-    term: string | undefined,
-    ctx: { signal: AbortSignal },
-  ) => readonly SearchChoice[] | Promise<readonly SearchChoice[]>
 }
 
-/**
- * 対話 UI を実行し、選択された profileName を返す
- * ESC キャンセル時は undefined
- */
+interface UIState {
+  filterText: string
+  selectedIndex: number
+  scrollOffset: number
+  filteredProfiles: Profile[]
+}
+
 export async function runSelector(opts: SelectorOptions): Promise<string | undefined> {
-  const ac = new AbortController()
+  const { searcher, layout, pageSize } = opts
 
-  /* ESC でキャンセル -------------------------------- */
-  readline.emitKeypressEvents(process.stdin)
-  process.stdin.setRawMode?.(true)
-  const onKey = (_: unknown, k: readline.Key) => k?.name === 'escape' && ac.abort()
-  process.stdin.on('keypress', onKey)
+  return new Promise((resolve) => {
+    const keyboard = createKeyboardHandler()
+    const renderer = createTerminalRenderer()
 
-  try {
-    return await searchPrompt(
-      {
-        message: chalk.cyanBright('Search:'),
+    const state: UIState = {
+      filterText: '',
+      selectedIndex: 0,
+      scrollOffset: 0,
+      filteredProfiles: searcher.getAll(),
+    }
 
-        pageSize: opts.pageSize,
-        /*  型衝突を避けるため any キャスト  */
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        source: opts.choiceSource as any,
-      },
-      { signal: ac.signal },
-    )
-  } catch (e) {
-    if ((e as { name?: string }).name === 'AbortPromptError') return undefined
-    throw e
-  } finally {
-    process.stdin.off('keypress', onKey)
-    process.stdin.setRawMode?.(false)
-  }
+    const buildTableRows = (): string[] => {
+      const { filteredProfiles, selectedIndex } = state
+      const rows: string[] = []
+
+      rows.push(layout.borderTop)
+      rows.push(layout.header)
+      rows.push(layout.borderMid)
+
+      for (let i = 0; i < filteredProfiles.length; i++) {
+        const profile = filteredProfiles[i]
+        if (i === selectedIndex) {
+          rows.push(layout.formatSelectedRow(profile))
+        } else {
+          rows.push(layout.formatUnselectedRow(profile))
+        }
+      }
+
+      rows.push(layout.borderBot)
+
+      return rows
+    }
+
+    const adjustScroll = (): void => {
+      const { selectedIndex, scrollOffset } = state
+      // Account for header rows (borderTop, header, borderMid = 3 rows)
+      const headerRows = 3
+      const footerRows = 1
+      const dataPageSize = pageSize - headerRows - footerRows
+
+      // Adjust selectedIndex scroll position within data rows
+      if (selectedIndex < scrollOffset) {
+        state.scrollOffset = selectedIndex
+      } else if (selectedIndex >= scrollOffset + dataPageSize) {
+        state.scrollOffset = selectedIndex - dataPageSize + 1
+      }
+    }
+
+    const render = (): void => {
+      const rows = buildTableRows()
+      renderer.render({
+        filterText: state.filterText,
+        rows,
+        selectedIndex: state.selectedIndex + 3, // offset for header rows
+        scrollOffset: state.scrollOffset,
+        pageSize,
+      })
+    }
+
+    const updateFilter = (): void => {
+      state.filteredProfiles = searcher.search(state.filterText)
+      state.selectedIndex = 0
+      state.scrollOffset = 0
+    }
+
+    const cleanup = (): void => {
+      keyboard.stop()
+      renderer.clear()
+      renderer.showCursor()
+    }
+
+    const handleKey = (key: KeyType): void => {
+      switch (key.type) {
+        case 'up':
+          if (state.filteredProfiles.length > 0) {
+            state.selectedIndex =
+              (state.selectedIndex - 1 + state.filteredProfiles.length) %
+              state.filteredProfiles.length
+            adjustScroll()
+          }
+          break
+
+        case 'down':
+          if (state.filteredProfiles.length > 0) {
+            state.selectedIndex = (state.selectedIndex + 1) % state.filteredProfiles.length
+            adjustScroll()
+          }
+          break
+
+        case 'enter':
+          if (state.filteredProfiles.length > 0) {
+            const selected = state.filteredProfiles[state.selectedIndex]
+            cleanup()
+            resolve(selected.profileName)
+            return
+          }
+          break
+
+        case 'escape':
+          cleanup()
+          resolve(undefined)
+          return
+
+        case 'backspace':
+          if (state.filterText.length > 0) {
+            state.filterText = state.filterText.slice(0, -1)
+            updateFilter()
+          }
+          break
+
+        case 'char':
+          state.filterText += key.char
+          updateFilter()
+          break
+      }
+
+      render()
+    }
+
+    // Initial render
+    renderer.hideCursor()
+    render()
+
+    // Start keyboard handling
+    keyboard.start(handleKey)
+  })
 }

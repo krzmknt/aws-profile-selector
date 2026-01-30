@@ -8,7 +8,7 @@
  * - Glue together:
  *   1. Read & parse AWS config (`config-reader`)
  *   2. Build table layout (`table-layout`)
- *   3. Create fuzzy choice source (`choice-builder`)
+ *   3. Create fuzzy searcher (`choice-builder`)
  *   4. Run interactive UI (`selector-ui`)
  * - Output either `export AWS_PROFILE=…` or raw profile name (`--pure`).
  *
@@ -17,7 +17,7 @@
 
 import fs from 'node:fs/promises'
 import { Command } from 'commander'
-import { createChoiceBuilder } from '../src/choice-builder.js'
+import { createFuzzySearcher } from '../src/choice-builder.js'
 import { createLayout, type Profile } from '../src/table-layout.js'
 import { readAwsConfig } from '../src/config-reader.js'
 import { runSelector } from '../src/selector-ui.js'
@@ -44,9 +44,9 @@ try {
   }
 
   const layout = createLayout(profiles)
-  const { source } = createChoiceBuilder(profiles, layout)
+  const searcher = createFuzzySearcher(profiles)
 
-  const picked = await runSelector({ pageSize: 20, choiceSource: source })
+  const picked = await runSelector({ searcher, layout, pageSize: 20 })
 
   if (picked === undefined) {
     console.log('Cancelled.')

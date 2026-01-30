@@ -1,5 +1,4 @@
-import { createChoiceBuilder } from '../src/choice-builder'
-import { createLayout } from '../src/table-layout'
+import { createFuzzySearcher } from '../src/choice-builder'
 
 const length = 10
 const rows = Array.from({ length }, (_, i) => ({
@@ -8,26 +7,26 @@ const rows = Array.from({ length }, (_, i) => ({
 }))
 
 describe('choice-builder', () => {
-  const layout = createLayout(rows)
-  const { source } = createChoiceBuilder(rows, layout)
+  const searcher = createFuzzySearcher(rows)
 
-  it('returns all rows when term is undefined', async () => {
-    const list = await source(undefined, { signal: new AbortController().signal })
-    // borderTop, header, borderMid, body(10), borderBot = 14
-    expect(list.length).toBe(length + 4)
+  it('returns all rows when term is empty', () => {
+    const list = searcher.search('')
+    expect(list.length).toBe(length)
   })
 
-  it('filters rows by fuzzy term', async () => {
-    const list = await source('02', { signal: new AbortController().signal })
-    const names = list
-      .filter((i) => typeof i !== 'string' && 'value' in i)
-      .map((i) => (i as any).value)
+  it('returns all rows via getAll', () => {
+    const list = searcher.getAll()
+    expect(list.length).toBe(length)
+  })
+
+  it('filters rows by fuzzy term', () => {
+    const list = searcher.search('02')
+    const names = list.map((p) => p.profileName)
     expect(names).toEqual(['02.example'])
   })
 
-  it('returns empty body when nothing matched', async () => {
-    const list = await source('zzz', { signal: new AbortController().signal })
-    // borderTop, header, borderMid, borderBot (no body) = 4
-    expect(list.length).toBe(4)
+  it('returns empty array when nothing matched', () => {
+    const list = searcher.search('zzz')
+    expect(list.length).toBe(0)
   })
 })
