@@ -6,7 +6,7 @@
  * - Screen rendering logic for the table UI
  */
 
-import chalk from 'chalk'
+import { ansi } from './ansi.js'
 
 /** ANSI escape codes */
 const ESC = '\x1b['
@@ -53,8 +53,8 @@ export function createTerminalRenderer(): TerminalRenderer {
     const lines: string[] = []
 
     // Filter prompt line (indigo/blue-purple color)
-    const cursor = chalk.gray('█')
-    lines.push(`${chalk.hex('#6366F1')('Filter:')} ${filterText}${cursor}`)
+    const cursor = ansi.gray('█')
+    lines.push(`${ansi.hex('#6366F1')('Filter:')} ${filterText}${cursor}`)
 
     // Calculate visible window
     const visibleRows = rows.slice(scrollOffset, scrollOffset + pageSize)

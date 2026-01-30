@@ -16,18 +16,29 @@
  */
 
 import fs from 'node:fs/promises'
-import { Command } from 'commander'
 import { createFuzzySearcher } from '../src/choice-builder.js'
 import { createLayout, type Profile } from '../src/table-layout.js'
 import { readAwsConfig } from '../src/config-reader.js'
 import { runSelector } from '../src/selector-ui.js'
 
-const cli = new Command()
-  .option('--pure', 'Print ONLY the selected profile name')
-  .option('--out <file>', 'Write the selected profile name to <file>')
-  .parse()
+/** Simple CLI argument parser */
+function parseArgs(): { pure: boolean; out?: string } {
+  const args = process.argv.slice(2)
+  let pure = false
+  let out: string | undefined
 
-const { pure, out: outFile } = cli.opts<{ pure: boolean; out?: string }>()
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--pure') {
+      pure = true
+    } else if (args[i] === '--out' && args[i + 1]) {
+      out = args[++i]
+    }
+  }
+
+  return { pure, out }
+}
+
+const { pure, out: outFile } = parseArgs()
 
 try {
   const config = readAwsConfig()

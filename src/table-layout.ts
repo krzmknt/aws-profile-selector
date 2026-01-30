@@ -10,9 +10,8 @@
  * Does **not** read files or interact with inquirer.
  */
 
-import chalk from 'chalk'
-import stripAnsi from 'strip-ansi'
 import stringWidth from 'string-width'
+import { ansi, stripAnsi } from './ansi.js'
 
 /**
  * 表示 1 行のデータ
@@ -33,7 +32,7 @@ function border(
   widthName: number,
   widthAccountId: number,
 ): string {
-  return chalk.gray(
+  return ansi.gray(
     left + '─'.repeat(widthName + 2) + cross + '─'.repeat(widthAccountId + 2) + right,
   )
 }
@@ -67,11 +66,11 @@ export function createLayout(list: Profile[]): Layout {
   )
 
   const header =
-    chalk.gray('│ ') +
-    chalk.bold.white(pad(headerTitleName, widthName)) +
-    chalk.gray(' │ ') +
-    chalk.bold.white(pad(headerTitleAccountId, widthAccountId)) +
-    chalk.gray(' │')
+    ansi.gray('│ ') +
+    ansi.bold.white(pad(headerTitleName, widthName)) +
+    ansi.gray(' │ ') +
+    ansi.bold.white(pad(headerTitleAccountId, widthAccountId)) +
+    ansi.gray(' │')
 
   /** 選択行: 太い左枠線 ┃ + 背景色ハイライト (薄いグレー背景) */
   const formatSelectedRow = (profileRow: Profile): string => {
@@ -93,16 +92,16 @@ export function createLayout(list: Profile[]): Layout {
       ' ' +
       reset
 
-    return chalk.bold.hex('#6366F1')('▐') + content + chalk.gray('│')
+    return ansi.boldHex('#6366F1')('▐') + content + ansi.gray('│')
   }
 
   /** 非選択行: 通常の左枠線 │ */
   const formatUnselectedRow = (profileRow: Profile): string =>
-    chalk.gray('│ ') +
+    ansi.gray('│ ') +
     pad(profileRow.profileName, widthName) +
-    chalk.gray(' │ ') +
+    ansi.gray(' │ ') +
     pad(profileRow.accountId, widthAccountId) +
-    chalk.gray(' │')
+    ansi.gray(' │')
 
   return {
     formatSelectedRow,

@@ -2,8 +2,7 @@
 import { appendFileSync, existsSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import chalk from 'chalk'
-import { Command } from 'commander'
+import { ansi } from '../src/ansi.js'
 
 /* ------------------------------------------------------------------ */
 /* 1. CLI                                                              */
@@ -14,13 +13,24 @@ interface CliOpt {
   apply?: boolean
 }
 
-const cli = new Command()
-  .description('Install awsps helper into your shell rc')
-  .option('-s, --shell <name>', 'bash|zsh|fish|powershell')
-  .option('-a, --apply', 'write directly into rc file instead of printing snippet')
-  .parse()
+/** Simple CLI argument parser */
+function parseArgs(): CliOpt {
+  const args = process.argv.slice(2)
+  let shell: string | undefined
+  let apply = false
 
-const { shell, apply } = cli.opts<CliOpt>()
+  for (let i = 0; i < args.length; i++) {
+    if ((args[i] === '-s' || args[i] === '--shell') && args[i + 1]) {
+      shell = args[++i]
+    } else if (args[i] === '-a' || args[i] === '--apply') {
+      apply = true
+    }
+  }
+
+  return { shell, apply }
+}
+
+const { shell, apply } = parseArgs()
 
 /* ------------------------------------------------------------------ */
 /* 2. シェル判定                                                        */
@@ -124,7 +134,7 @@ const snippet = snippets[targetShell].trimStart()
  * 4. 適用 or 出力
  */
 if (!apply) {
-  console.log(chalk.cyan(`# --- Add the following to your ${targetShell} rc ---\n`))
+  console.log(ansi.cyan(`# --- Add the following to your ${targetShell} rc ---\n`))
   console.log(snippet)
   process.exit(0)
 }
@@ -150,15 +160,15 @@ try {
 
   if (!existsSync(rcPath)) writeFileSync(rcPath, '', { flag: 'a' })
   appendFileSync(rcPath, `\n${snippet}\n`)
-  console.log(chalk.green(`✓ Added awsp helper to ${rcPath}`))
-  console.log(chalk.yellow(`To remove, delete the snippet from ${rcPath}:\n`))
-  console.log(chalk.yellow(snippet))
+  console.log(ansi.green(`✓ Added awsp helper to ${rcPath}`))
+  console.log(ansi.yellow(`To remove, delete the snippet from ${rcPath}:\n`))
+  console.log(ansi.yellow(snippet))
   console.log(
-    chalk.yellow(
+    ansi.yellow(
       `\nNote: You may need to restart your shell or run 'source ${rcPath}' to apply changes.`,
     ),
   )
 } catch (err) {
-  console.error(chalk.red(`Failed to write rc: ${(err as Error).message}`))
+  console.error(ansi.red(`Failed to write rc: ${(err as Error).message}`))
   process.exit(1)
 }
